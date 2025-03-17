@@ -18,6 +18,10 @@ class LocationViewModel @Inject constructor(
     private val _locationState = MutableStateFlow<LatLng?>(null)
     val locationState: StateFlow<LatLng?> = _locationState.asStateFlow()
 
+    private val _taggedLocations = MutableStateFlow<List<LatLng>>(emptyList())
+    val taggedLocations: StateFlow<List<LatLng>> = _taggedLocations.asStateFlow()
+
+
     init {
         fetchUserLocation()
     }
@@ -27,5 +31,13 @@ class LocationViewModel @Inject constructor(
             val userLocation = getUserLocationUseCase()
             _locationState.value = userLocation
         }
+    }
+
+    fun tagLocation(latLng: LatLng) {
+        _taggedLocations.value += latLng
+    }
+
+    fun removeTaggedLocation(latLng: LatLng) {
+        _taggedLocations.value -= latLng
     }
 }
