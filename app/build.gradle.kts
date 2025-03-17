@@ -22,8 +22,8 @@ android {
             useSupportLibrary = true
         }
 
-        buildConfigField("String", "MAPS_API_KEY", "\"${project.findProperty("MAPS_API_KEY") ?: ""}\"")
-        manifestPlaceholders["MAPS_API_KEY"] = project.findProperty("MAPS_API_KEY") ?: ""
+        val apiKey: String? = project.findProperty("MAPS_API_KEY") as String?
+        manifestPlaceholders["MAPS_API_KEY"] = apiKey ?: "YOUR_DEFAULT_KEY"
     }
 
     buildTypes {
