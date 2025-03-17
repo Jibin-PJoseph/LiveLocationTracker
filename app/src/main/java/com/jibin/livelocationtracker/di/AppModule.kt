@@ -3,6 +3,7 @@ package com.jibin.livelocationtracker.di
 import android.content.Context
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.jibin.livelocationtracker.data.location.GeocoderHelper
 import com.jibin.livelocationtracker.data.repository.LocationRepositoryImpl
 import com.jibin.livelocationtracker.domain.repository.LocationRepository
 import com.jibin.livelocationtracker.domain.usecases.GetAddressUseCase
@@ -31,7 +32,11 @@ object AppModule {
     ): LocationRepository {
         return LocationRepositoryImpl(fusedLocationProviderClient, context)
     }
-
+    @Provides
+    @Singleton
+    fun provideGeocoderHelper(@ApplicationContext context: Context): GeocoderHelper {
+        return GeocoderHelper(context)
+    }
     @Provides
     @Singleton
     fun provideGetAddressUseCase(repository: LocationRepository): GetAddressUseCase {

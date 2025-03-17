@@ -1,25 +1,15 @@
+package com.jibin.livelocationtracker.presentation.ui.screens
+
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
-import com.jibin.livelocationtracker.presentation.ui.components.ConfirmTaggingDialog
+import com.google.maps.android.compose.*
+import com.jibin.livelocationtracker.presentation.ui.components.ConfirmLocationTaggingDialog
 import com.jibin.livelocationtracker.presentation.ui.components.RequestLocationPermission
 import com.jibin.livelocationtracker.presentation.viewmodels.LocationViewModel
 import kotlinx.coroutines.delay
-
 
 @Composable
 fun GoogleMapScreen(viewModel: LocationViewModel) {
@@ -28,13 +18,14 @@ fun GoogleMapScreen(viewModel: LocationViewModel) {
     val cameraPositionState = rememberCameraPositionState()
 
     var selectedLocation by remember { mutableStateOf<LatLng?>(null) }
+    var selectedAddress by remember { mutableStateOf("Fetching address...") }
+    var locationToRemove by remember { mutableStateOf<LatLng?>(null) }
     var showInfoWindow by remember { mutableStateOf(false) }
-
     val markerState = rememberMarkerState()
 
     LaunchedEffect(userLocation) {
         userLocation?.let {
-            markerState.position = it // Update marker position
+            markerState.position = it
             cameraPositionState.animate(
                 CameraUpdateFactory.newLatLngZoom(it, 15f),
                 1000
@@ -50,49 +41,53 @@ fun GoogleMapScreen(viewModel: LocationViewModel) {
         cameraPositionState = cameraPositionState,
         onMapClick = { latLng ->
             selectedLocation = latLng
+            selectedAddress = "Fetching address..."  // Reset
+            viewModel.getAddress(latLng) { address ->
+                selectedAddress = address  // Update when fetched
+            }
         }
     ) {
         Marker(
             state = markerState,
             title = "You are here",
             snippet = "Current location",
-            onClick = {
-                showInfoWindow = !showInfoWindow
-                true
-            }
+            onClick = { showInfoWindow = !showInfoWindow; true }
         )
         LaunchedEffect(showInfoWindow) {
             delay(500)
-            if (showInfoWindow) {
-                markerState.showInfoWindow()
-            }
+            if (showInfoWindow) markerState.showInfoWindow()
         }
 
-        taggedLocations.forEach { latLng ->
+        taggedLocations.forEach { (latLng, address) ->
+            val taggedMarkerState = rememberMarkerState(position = latLng)
+            var showTaggedInfoWindow by remember { mutableStateOf(false) }
+
             Marker(
-                state = rememberMarkerState(position = latLng),
+                state = taggedMarkerState,
                 title = "Tagged Location",
-                snippet = "Tap to remove",
-                onClick = {
-                    viewModel.removeTaggedLocation(latLng)
-                    true
-                }
+                snippet = address,
+                onClick = { showTaggedInfoWindow = !showTaggedInfoWindow; true }
             )
+
+            LaunchedEffect(showTaggedInfoWindow) {
+                delay(500)
+                if (showTaggedInfoWindow) taggedMarkerState.showInfoWindow()
+            }
         }
     }
 
     RequestLocationPermission(viewModel)
 
-    selectedLocation?.let { latLng ->
-        ConfirmTaggingDialog(
-            latLng = latLng,
+    selectedLocation?.let {
+        ConfirmLocationTaggingDialog(
+            latLng = it,
+            address = selectedAddress,  // Show the correct address
             onConfirm = {
-                viewModel.tagLocation(latLng)
+                viewModel.tagLocation(it)
                 selectedLocation = null
             },
             onDismiss = { selectedLocation = null }
         )
     }
 }
-
 

@@ -1,8 +1,8 @@
 package com.jibin.livelocationtracker.presentation.viewmodels
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.jibin.livelocationtracker.data.location.GeocoderHelper
 import com.jibin.livelocationtracker.domain.usecases.GetUserLocationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,14 +13,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LocationViewModel @Inject constructor(
-    private val getUserLocationUseCase: GetUserLocationUseCase
-): ViewModel(){
+    private val getUserLocationUseCase: GetUserLocationUseCase,
+    private val geocoderHelper: GeocoderHelper
+) : ViewModel() {
+
     private val _locationState = MutableStateFlow<LatLng?>(null)
     val locationState: StateFlow<LatLng?> = _locationState.asStateFlow()
 
-    private val _taggedLocations = MutableStateFlow<List<LatLng>>(emptyList())
-    val taggedLocations: StateFlow<List<LatLng>> = _taggedLocations.asStateFlow()
-
+    private val _taggedLocations = MutableStateFlow<List<Pair<LatLng, String>>>(emptyList())
+    val taggedLocations = _taggedLocations.asStateFlow()
 
     init {
         fetchUserLocation()
@@ -34,10 +35,25 @@ class LocationViewModel @Inject constructor(
     }
 
     fun tagLocation(latLng: LatLng) {
-        _taggedLocations.value += latLng
+        viewModelScope.launch {
+            val address = geocoderHelper.getAddressFromLocation(latLng)
+            _taggedLocations.value = _taggedLocations.value + (latLng to address)
+        }
     }
 
+
     fun removeTaggedLocation(latLng: LatLng) {
-        _taggedLocations.value -= latLng
+        viewModelScope.launch {
+            val updatedLocations = _taggedLocations.value.toMutableList()
+            updatedLocations.removeAll { it.first.latitude == latLng.latitude && it.first.longitude == latLng.longitude }
+            _taggedLocations.value = updatedLocations
+        }
+    }
+
+    fun getAddress(latLng: LatLng, callback: (String) -> Unit) {
+        viewModelScope.launch {
+            val address = geocoderHelper.getAddressFromLocation(latLng)
+            callback(address)
+        }
     }
 }

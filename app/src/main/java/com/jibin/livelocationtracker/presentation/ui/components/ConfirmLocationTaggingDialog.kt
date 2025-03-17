@@ -1,26 +1,32 @@
 package com.jibin.livelocationtracker.presentation.ui.components
 
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
-fun ConfirmTaggingDialog(
+fun ConfirmLocationTaggingDialog(
     latLng: LatLng,
+    address: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Confirm Tagging") },
-        text = { Text("Do you want to tag this location?\n(${latLng.latitude}, ${latLng.longitude})") },
-        confirmButton = {
-            Button(onClick = onConfirm) { Text("Tag Location") }
+        title = { Text("Confirm Location Tagging") },
+        text = {
+            Column {
+                Text(text = "Do you want to tag this location?")
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Address: $address", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+            }
         },
-        dismissButton = {
-            Button(onClick = onDismiss) { Text("Cancel") }
-        }
+        confirmButton = { TextButton(onClick = onConfirm) { Text("Confirm") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
 }
+

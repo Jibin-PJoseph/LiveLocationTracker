@@ -77,6 +77,7 @@ dependencies {
     // Google Maps and Location Services
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+    implementation(libs.play.services.geocoding)
 
     // Accompanist Permissions (For location permission handling)
     implementation(libs.accompanist.permissions)
@@ -85,6 +86,7 @@ dependencies {
     implementation(libs.javapoet)
     implementation(libs.kotlinx.coroutines.play.services)
 
+    implementation(libs.volley)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

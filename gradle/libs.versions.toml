@@ -11,12 +11,14 @@ lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.0"
 composeBom = "2024.04.01"
 
+geocoding-api = "2.3.0"
 hilt = "2.51"
 hilt-navigation-compose = "1.1.0"
 maps = "18.1.0"
 play-services-location = "21.0.1"
 accompanist-permissions = "0.32.0"
 kotlinx-coroutines-play-services = "1.7.3"
+volley = "1.2.1"
 
 
 
@@ -45,6 +47,8 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist-permissions" }
 maps-compose = { group = "com.google.maps.android", name = "maps-compose", version = "2.11.4" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines-play-services" }
+play-services-geocoding = { group = "com.google.android.libraries.places", name = "places", version.ref = "geocoding-api" }
+volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 
 [plugins]
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kapt" }
