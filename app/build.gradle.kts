@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.jibin.livelocationtracker"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.jibin.livelocationtracker"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -21,6 +21,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val apiKey: String? = project.findProperty("MAPS_API_KEY") as String?
+        manifestPlaceholders["MAPS_API_KEY"] = apiKey ?: "YOUR_DEFAULT_KEY"
     }
 
     buildTypes {
@@ -41,6 +44,8 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -66,13 +71,22 @@ dependencies {
     // Hilt (Dependency Injection)
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+
 
     // Google Maps and Location Services
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+    implementation(libs.play.services.geocoding)
 
     // Accompanist Permissions (For location permission handling)
     implementation(libs.accompanist.permissions)
+    implementation(libs.maps.compose)
+
+    implementation(libs.javapoet)
+    implementation(libs.kotlinx.coroutines.play.services)
+
+    implementation(libs.volley)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
